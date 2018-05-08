@@ -73,10 +73,8 @@ func main() {
 	g, ctx := errgroup.WithContext(context.Background())
 	srcDocCh, srcErrCh := src.Iterate(ctx, srcIterReq)
 	dstDocCh, dstErrCh := dst.Iterate(ctx, dstIterReq)
-	doneCh := make(chan struct{}, 1)
 	diffCh, errCh := diff.Differ(ctx, srcDocCh, dstDocCh)
 	g.Go(func() error {
-		defer close(doneCh)
 		for {
 			select {
 			case d, ok := <-diffCh:
