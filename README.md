@@ -6,8 +6,7 @@ The `esdiff` tool iterates over two indices in Elasticsearch 5.x or 6.x
 and performs a diff between the documents in those indices.
 
 It does so by scrolling over the indices. To allow for a stable sort
-order, it uses `_id` by default (`_uid` in ES 5.x). You can provide
-a different sort field by using the `-sort` option.
+order, it uses `_id` by default (`_uid` in ES 5.x).
 
 ## Example usage
 
@@ -113,8 +112,6 @@ General flags:
     	Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}
   -size int
     	Batch size (default 100)
-  -sort string
-    	Sort field, e.g. _id or name.keyword
 ```
 
 ## License

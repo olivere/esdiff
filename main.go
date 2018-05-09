@@ -25,7 +25,6 @@ import (
 func main() {
 	var (
 		outputFormat = flag.String("o", "", "Output format, e.g. json")
-		sort         = flag.String("sort", "", "Sort field, e.g. _id or name.keyword")
 		size         = flag.Int("size", 100, "Batch size")
 		rawSrcFilter = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
 		rawDstFilter = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
@@ -40,7 +39,6 @@ func main() {
 	}
 
 	options := []elastic.ClientOption{
-		elastic.WithSortField(*sort),
 		elastic.WithBatchSize(*size),
 	}
 

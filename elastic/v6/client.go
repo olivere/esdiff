@@ -79,11 +79,6 @@ func (c *Client) SetBatchSize(size int) {
 	c.size = size
 }
 
-// SetSortField sets the field to use for stable sorting.
-func (c *Client) SetSortField(sortField string) {
-	c.sortField = sortField
-}
-
 // Iterate iterates over the index.
 func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-chan *diff.Document, <-chan error) {
 	docCh := make(chan *diff.Document)

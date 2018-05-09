@@ -22,12 +22,6 @@ type ClientWithBatchSize interface {
 	SetBatchSize(int)
 }
 
-// ClientWithSortField should be implemented by clients that
-// support setting the sort field for scrolling.
-type ClientWithSortField interface {
-	SetSortField(string)
-}
-
 // ClientOption specifies the signature for setting a generic
 // option for a Client.
 type ClientOption func(Client)
@@ -40,19 +34,6 @@ func WithBatchSize(size int) ClientOption {
 		if ok {
 			if size > 0 {
 				c.SetBatchSize(size)
-			}
-		}
-	}
-}
-
-// WithSortField allows setting the sort field for scrolling through
-// the documents (for clients that support this).
-func WithSortField(sortField string) ClientOption {
-	return func(client Client) {
-		c, ok := client.(ClientWithSortField)
-		if ok {
-			if sortField != "" {
-				c.SetSortField(sortField)
 			}
 		}
 	}
