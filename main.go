@@ -28,7 +28,12 @@ func main() {
 		size         = flag.Int("size", 100, "Batch size")
 		rawSrcFilter = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
 		rawDstFilter = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
+		unchanged    = flag.Bool("u", false, `Should unchanged docs be included?`)
+		updated      = flag.Bool("c", false, `Should changed docs be included?`)
+		changed      = flag.Bool("a", false, `Should added docs be included?`)
+		deleted      = flag.Bool("d", false, `Should deleted docs be included?`)
 	)
+
 	log.SetFlags(0)
 	flag.Usage = usage
 	flag.Parse()
@@ -58,13 +63,17 @@ func main() {
 		RawQuery: *rawDstFilter,
 	}
 
+	if !*unchanged && !*updated && !*changed && !*deleted {
+		*unchanged, *updated, *changed, *deleted = true, true, true, true
+	}
+
 	var p printer.Printer
 	{
 		switch *outputFormat {
 		default:
-			p = printer.NewStdPrinter(os.Stdout)
+			p = printer.NewStdPrinter(os.Stdout, *unchanged, *updated, *changed, *deleted)
 		case "json":
-			p = printer.NewJSONPrinter(os.Stdout, -1, 0)
+			p = printer.NewJSONPrinter(os.Stdout, *unchanged, *updated, *changed, *deleted)
 		}
 	}
 
