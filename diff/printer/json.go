@@ -10,19 +10,23 @@ import (
 // JSONPrinter prints diffs as JSON, making it easily parseable
 // for tools like jq or jiq.
 type JSONPrinter struct {
-	w       io.Writer
-	enc     *json.Encoder
-	include int
-	exclude int
+	w         io.Writer
+	enc       *json.Encoder
+	unchanged bool
+	updated   bool
+	created   bool
+	deleted   bool
 }
 
 // NewJSONPrinter creates a new JSONPrinter.
-func NewJSONPrinter(w io.Writer, include, exclude int) *JSONPrinter {
+func NewJSONPrinter(w io.Writer, unchanged, updated, created, deleted bool) *JSONPrinter {
 	return &JSONPrinter{
-		w:       w,
-		enc:     json.NewEncoder(w),
-		include: include,
-		exclude: exclude,
+		w:         w,
+		enc:       json.NewEncoder(w),
+		unchanged: unchanged,
+		updated:   updated,
+		created:   created,
+		deleted:   deleted,
 	}
 }
 
@@ -36,6 +40,8 @@ func (p *JSONPrinter) Print(d diff.Diff) error {
 		// Diff interface{} `json:"diff,omitempty"`
 	}
 
+	ok := false
+
 	row := rowType{
 		Src: d.Src,
 		Dst: d.Dst,
@@ -45,16 +51,23 @@ func (p *JSONPrinter) Print(d diff.Diff) error {
 	case diff.Unchanged:
 		row.Mode = "unchanged"
 		row.ID = d.Src.ID
+		ok = p.unchanged
 	case diff.Created:
 		row.Mode = "created"
 		row.ID = d.Dst.ID
+		ok = p.created
 	case diff.Updated:
 		row.Mode = "updated"
 		row.ID = d.Src.ID
+		ok = p.updated
 	case diff.Deleted:
 		row.Mode = "deleted"
 		row.ID = d.Src.ID
+		ok = p.deleted
 	}
 
-	return p.enc.Encode(row)
+	if ok {
+		return p.enc.Encode(row)
+	}
+	return nil
 }
