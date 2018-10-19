@@ -28,10 +28,10 @@ func main() {
 		size         = flag.Int("size", 100, "Batch size")
 		rawSrcFilter = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
 		rawDstFilter = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
-		unchanged    = flag.Bool("u", false, `Should unchanged docs be included?`)
-		updated      = flag.Bool("c", false, `Should changed docs be included?`)
-		changed      = flag.Bool("a", false, `Should added docs be included?`)
-		deleted      = flag.Bool("d", false, `Should deleted docs be included?`)
+		unchanged    = flag.Bool("u", false, `Print unchanged docs`)
+		updated      = flag.Bool("c", true, `Print changed docs`)
+		changed      = flag.Bool("a", true, `Print added docs`)
+		deleted      = flag.Bool("d", true, `Print deleted docs`)
 	)
 
 	log.SetFlags(0)
@@ -63,10 +63,6 @@ func main() {
 		RawQuery: *rawDstFilter,
 	}
 
-	if !*unchanged && !*updated && !*changed && !*deleted {
-		*unchanged, *updated, *changed, *deleted = true, true, true, true
-	}
-
 	var p printer.Printer
 	{
 		switch *outputFormat {
@@ -88,7 +84,9 @@ func main() {
 				if !ok {
 					return nil
 				}
-				p.Print(d)
+				if err := p.Print(d); err != nil {
+					return err
+				}
 			case err := <-srcErrCh:
 				return err
 			case err := <-dstErrCh:

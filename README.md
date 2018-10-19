@@ -8,6 +8,8 @@ and performs a diff between the documents in those indices.
 It does so by scrolling over the indices. To allow for a stable sort
 order, it uses `_id` by default (`_uid` in ES 5.x).
 
+You need Go 1.11 or later to compile.
+
 ## Example usage
 
 First, we need to setup two Elasticsearch clusters for testing,
@@ -29,18 +31,33 @@ $ go build
 Let's make a simple diff:
 
 ```
-$ ./esdiff 'http://localhost:19200/index01/tweet' 'http://localhost:19201/index01/_doc'
+$ ./esdiff -u=true 'http://localhost:19200/index01/tweet' 'http://localhost:19201/index01/_doc'
+Unchanged	1
 Deleted	2
 Updated	3	{*diff.Document}.Source["message"]:
 	-: "Playing the piano is fun as well"
 	+: "Playing the guitar is fun as well"
 ```
 
+Notice that you can pass additional options to filter for
+the kind of modes that you're interested in. E.g. if you also
+want to see all unchanged documents but not those that were
+deleted, use `-u=true -d=false`:
+
+```
+$ ./esdiff -u=true -d=false 'http://localhost:19200/index01/tweet' 'http://localhost:19201/index01/_doc'
+Unchanged	1
+Updated	3	{*diff.Document}.Source["message"]:
+	-: "Playing the piano is fun as well"
+	+: "Playing the guitar is fun as well"
+```
+
 Use JSON as output format instead. Together with
-[`jq`]()
+[`jq`](https://stedolan.github.io/jq/)
 and
-[`jiq`]()
-this is quite powerful.
+[`jiq`](https://github.com/fiatjaf/jiq)
+this is quite powerful
+(among [other jq-related tools](https://github.com/fiatjaf/awesome-jq)).
 
 ```
 $ ./esdiff -o json 'http://localhost:19200/index01/tweet' 'http://localhost:19201/index01/_doc' | jq 'select(.mode | contains("deleted"))'
@@ -64,24 +81,6 @@ using the `-sf` and `-df` args respectively:
 ```
 $ ./esdiff -o json -sf='{"term":{"user":"olivere"}}' 'http://localhost:19200/index01/tweet' 'http://localhost:19201/index01/_doc' | jq .
 {
-  "mode": "unchanged",
-  "_id": "1",
-  "src": {
-    "_id": "1",
-    "_source": {
-      "message": "Welcome to Golang",
-      "user": "olivere"
-    }
-  },
-  "dst": {
-    "_id": "1",
-    "_source": {
-      "message": "Welcome to Golang",
-      "user": "olivere"
-    }
-  }
-}
-{
   "mode": "deleted",
   "_id": "2",
   "src": {
@@ -98,12 +97,15 @@ $ ./esdiff -o json -sf='{"term":{"user":"olivere"}}' 'http://localhost:19200/ind
 Use `-h` to display all options:
 
 ```
-$ esdiff -h
+$ ./esdiff -h
 General usage:
 
 	esdiff [flags] <source-url> <destination-url>
 
 General flags:
+  -a	Print added docs (default true)
+  -c	Print changed docs (default true)
+  -d	Print deleted docs (default true)
   -df string
     	Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}
   -o string
@@ -112,6 +114,7 @@ General flags:
     	Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}
   -size int
     	Batch size (default 100)
+  -u	Print unchanged docs
 ```
 
 ## License

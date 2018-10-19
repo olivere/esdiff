@@ -35,7 +35,7 @@ func (p *StdPrinter) Print(d diff.Diff) error {
 	switch d.Mode {
 	case diff.Unchanged:
 		if p.unchanged {
-			fmt.Fprintf(p.w, "Unchanged\t%v\n", cmp.Diff(d.Src, d.Dst))
+			fmt.Fprintf(p.w, "Unchanged\t%v\t%v\n", d.Src.ID, cmp.Diff(d.Src, d.Dst))
 		}
 	case diff.Created:
 		if p.created {
