@@ -8,7 +8,11 @@ and performs a diff between the documents in those indices.
 It does so by scrolling over the indices. To allow for a stable sort
 order, it uses `_id` by default (`_uid` in ES 5.x).
 
-You need Go 1.11 or later to compile.
+You need Go 1.11 or later to compile. Install with:
+
+```
+$ go install github.com/olivere/esdiff
+```
 
 ## Example usage
 
