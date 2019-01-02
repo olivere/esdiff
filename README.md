@@ -112,6 +112,10 @@ General flags:
   -d	Print deleted docs (default true)
   -df string
     	Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}
+  -exclude string
+    	Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"
+  -include string
+    	Raw source filter for including certain fields from the source, e.g. "obj.*"
   -o string
     	Output format, e.g. json
   -sf string
