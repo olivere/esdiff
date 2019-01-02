@@ -13,7 +13,9 @@ type Client interface {
 
 // IterateRequest specifies a request for the Iterate function.
 type IterateRequest struct {
-	RawQuery string
+	RawQuery            string
+	SourceFilterInclude []string
+	SourceFilterExclude []string
 }
 
 // ClientWithBatchSize should be implemented by clients that

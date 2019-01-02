@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/pkg/errors"
@@ -24,14 +25,16 @@ import (
 
 func main() {
 	var (
-		outputFormat = flag.String("o", "", "Output format, e.g. json")
-		size         = flag.Int("size", 100, "Batch size")
-		rawSrcFilter = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
-		rawDstFilter = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
-		unchanged    = flag.Bool("u", false, `Print unchanged docs`)
-		updated      = flag.Bool("c", true, `Print changed docs`)
-		changed      = flag.Bool("a", true, `Print added docs`)
-		deleted      = flag.Bool("d", true, `Print deleted docs`)
+		outputFormat     = flag.String("o", "", "Output format, e.g. json")
+		size             = flag.Int("size", 100, "Batch size")
+		rawSrcQuery      = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
+		rawDstQuery      = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
+		srcFilterInclude = flag.String("include", "", `Raw source filter for including certain fields from the source, e.g. "obj.*"`)
+		srcFilterExclude = flag.String("exclude", "", `Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"`)
+		unchanged        = flag.Bool("u", false, `Print unchanged docs`)
+		updated          = flag.Bool("c", true, `Print changed docs`)
+		changed          = flag.Bool("a", true, `Print added docs`)
+		deleted          = flag.Bool("d", true, `Print deleted docs`)
 	)
 
 	log.SetFlags(0)
@@ -43,6 +46,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	var srcFilterIncludes []string
+	if *srcFilterInclude != "" {
+		srcFilterIncludes = strings.Split(*srcFilterInclude, ",")
+	}
+	var srcFilterExcludes []string
+	if *srcFilterExclude != "" {
+		srcFilterExcludes = strings.Split(*srcFilterExclude, ",")
+	}
+
 	options := []elastic.ClientOption{
 		elastic.WithBatchSize(*size),
 	}
@@ -52,7 +64,9 @@ func main() {
 		log.Fatal(err)
 	}
 	srcIterReq := &elastic.IterateRequest{
-		RawQuery: *rawSrcFilter,
+		RawQuery:            *rawSrcQuery,
+		SourceFilterInclude: srcFilterIncludes,
+		SourceFilterExclude: srcFilterExcludes,
 	}
 
 	dst, err := newClient(flag.Arg(1), options...)
@@ -60,7 +74,9 @@ func main() {
 		log.Fatal(err)
 	}
 	dstIterReq := &elastic.IterateRequest{
-		RawQuery: *rawDstFilter,
+		RawQuery:            *rawDstQuery,
+		SourceFilterInclude: srcFilterIncludes,
+		SourceFilterExclude: srcFilterExcludes,
 	}
 
 	var p printer.Printer
