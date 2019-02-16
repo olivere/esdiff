@@ -91,7 +91,7 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 		// Sorting
 		var sorter elasticv6.Sorter
 		if req.SortField == "" {
-			sorter = elasticv6.SortByDoc{}
+			sorter = elasticv6.NewFieldSort("_id").Asc()
 		} else {
 			field := req.SortField
 			asc := true
