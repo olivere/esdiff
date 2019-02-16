@@ -157,7 +157,37 @@ var differTests = []struct {
 				Dst:  nil,
 			},
 		},
-	}}
+	},
+	// #6
+	{
+		Srcs: []*Document{
+			{ID: "239473748", Source: map[string]interface{}{"Name": "Same Document"}},
+		},
+		Dsts: []*Document{
+			{ID: "239473748", Source: map[string]interface{}{"Name": "Same Document"}},
+			{ID: "34", Source: map[string]interface{}{"Name": "New Document"}},
+			{ID: "32", Source: map[string]interface{}{"Name": "New Document 2"}},
+		},
+		Errs: nil,
+		Diffs: []Diff{
+			{
+				Mode: Unchanged,
+				Src:  &Document{ID: "239473748", Source: map[string]interface{}{"Name": "Same Document"}},
+				Dst:  &Document{ID: "239473748", Source: map[string]interface{}{"Name": "Same Document"}},
+			},
+			{
+				Mode: Created,
+				Src:  nil,
+				Dst:  &Document{ID: "34", Source: map[string]interface{}{"Name": "New Document"}},
+			},
+			{
+				Mode: Created,
+				Src:  nil,
+				Dst:  &Document{ID: "32", Source: map[string]interface{}{"Name": "New Document 2"}},
+			},
+		},
+	},
+}
 
 func TestDiffer(t *testing.T) {
 	for i, tt := range differTests {

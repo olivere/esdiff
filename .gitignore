@@ -32,3 +32,4 @@ _testmain.go
 /data
 /*.json
 /esdiff
+/tmp/

@@ -44,7 +44,7 @@ services:
     ports:
       - 29210:5601
   elasticsearch6:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.4
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.0
     hostname: elasticsearch6
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
@@ -69,7 +69,7 @@ services:
     ports:
       - 19201:9200
   kibana6:
-    image: docker.elastic.co/kibana/kibana-oss:6.5.4
+    image: docker.elastic.co/kibana/kibana-oss:6.6.0
     hostname: kibana6
     volumes:
       - ./etc/kibana6/kibana.yml:/usr/share/kibana/config/kibana.yml

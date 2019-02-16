@@ -17,11 +17,10 @@ import (
 
 // Client implements an Elasticsearch 5.x client.
 type Client struct {
-	c         *elasticv5.Client
-	index     string
-	typ       string
-	size      int
-	sortField string
+	c     *elasticv5.Client
+	index string
+	typ   string
+	size  int
 }
 
 // NewClient creates a new Client.
@@ -65,11 +64,10 @@ func NewClient(cfg *config.Config) (*Client, error) {
 		return nil, err
 	}
 	c := &Client{
-		c:         cli,
-		index:     cfg.Index,
-		typ:       cfg.Type,
-		size:      100,
-		sortField: "_uid", // ES 5.x must not sort by "_id"
+		c:     cli,
+		index: cfg.Index,
+		typ:   cfg.Type,
+		size:  100,
 	}
 	return c, nil
 }
@@ -90,7 +88,21 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 			close(errCh)
 		}()
 
-		svc := c.c.Scroll(c.index).Type(c.typ).Size(c.size).Sort(c.sortField, true)
+		// Sorting
+		var sorter elasticv5.Sorter
+		if req.SortField == "" {
+			sorter = elasticv5.SortByDoc{}
+		} else {
+			field := req.SortField
+			asc := true
+			if field[0] == '-' {
+				field = field[1:]
+				asc = false
+			}
+			sorter = elasticv5.NewFieldSort(field).Order(asc)
+		}
+
+		svc := c.c.Scroll(c.index).Type(c.typ).Size(c.size).SortBy(sorter)
 		if req.RawQuery != "" {
 			q := elasticv5.NewRawStringQuery(req.RawQuery)
 			svc = svc.Query(q)

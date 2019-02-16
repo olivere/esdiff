@@ -19,8 +19,8 @@ import (
 	"github.com/olivere/esdiff/diff/printer"
 	"github.com/olivere/esdiff/elastic"
 	"github.com/olivere/esdiff/elastic/config"
-	"github.com/olivere/esdiff/elastic/v5"
-	"github.com/olivere/esdiff/elastic/v6"
+	v5 "github.com/olivere/esdiff/elastic/v5"
+	v6 "github.com/olivere/esdiff/elastic/v6"
 )
 
 func main() {
@@ -29,6 +29,8 @@ func main() {
 		size             = flag.Int("size", 100, "Batch size")
 		rawSrcQuery      = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
 		rawDstQuery      = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
+		srcSort          = flag.String("ssort", "", `Field to sort the source, e.g. "id" or "-id" (prepend with - for descending)`)
+		dstSort          = flag.String("dsort", "", `Field to sort the destination, e.g. "id" or "-id" (prepend with - for descending)`)
 		srcFilterInclude = flag.String("include", "", `Raw source filter for including certain fields from the source, e.g. "obj.*"`)
 		srcFilterExclude = flag.String("exclude", "", `Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"`)
 		unchanged        = flag.Bool("u", false, `Print unchanged docs`)
@@ -65,6 +67,7 @@ func main() {
 	}
 	srcIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawSrcQuery,
+		SortField:           *srcSort,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}
@@ -75,6 +78,7 @@ func main() {
 	}
 	dstIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawDstQuery,
+		SortField:           *dstSort,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}
@@ -91,8 +95,11 @@ func main() {
 
 	g, ctx := errgroup.WithContext(context.Background())
 	srcDocCh, srcErrCh := src.Iterate(ctx, srcIterReq)
+	_ = srcErrCh
 	dstDocCh, dstErrCh := dst.Iterate(ctx, dstIterReq)
+	_ = dstErrCh
 	diffCh, errCh := diff.Differ(ctx, srcDocCh, dstDocCh)
+	_ = errCh
 	g.Go(func() error {
 		for {
 			select {
@@ -103,16 +110,19 @@ func main() {
 				if err := p.Print(d); err != nil {
 					return err
 				}
-			case err := <-srcErrCh:
-				return err
-			case err := <-dstErrCh:
-				return err
-			case err := <-errCh:
-				return err
 			case <-ctx.Done():
 				return ctx.Err()
 			}
 		}
+	})
+	g.Go(func() error {
+		return <-srcErrCh
+	})
+	g.Go(func() error {
+		return <-dstErrCh
+	})
+	g.Go(func() error {
+		return <-errCh
 	})
 	if err = g.Wait(); err != nil {
 		log.Fatal(err)

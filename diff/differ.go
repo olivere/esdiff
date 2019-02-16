@@ -178,6 +178,7 @@ func Differ(
 							break
 						}
 						diffCh <- Diff{Mode: Created, Dst: dstDoc}
+						dstDoc = nil
 					case <-ctx.Done():
 						errCh <- ctx.Err()
 						return
@@ -200,6 +201,7 @@ func Differ(
 							break
 						}
 						diffCh <- Diff{Mode: Deleted, Src: srcDoc}
+						srcDoc = nil
 					case <-ctx.Done():
 						errCh <- ctx.Err()
 						return

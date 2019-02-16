@@ -14,6 +14,7 @@ type Client interface {
 // IterateRequest specifies a request for the Iterate function.
 type IterateRequest struct {
 	RawQuery            string
+	SortField           string
 	SourceFilterInclude []string
 	SourceFilterExclude []string
 }
