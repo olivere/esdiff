@@ -1,0 +1,56 @@
+version: '3.3'
+
+services:
+  elasticsearch5:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.14
+    hostname: elasticsearch5
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=mia5
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+    volumes:
+      - ./data/elasticsearch5:/usr/share/elasticsearch5/data
+      - ./etc/elasticsearch5/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - 19200:9200
+    networks:
+      - esdiff-network
+
+  elasticsearch6:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.0
+    hostname: elasticsearch6
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=mia6
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./data/elasticsearch6:/usr/share/elasticsearch6/data
+      - ./etc/elasticsearch6/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - 29200:9200
+    networks:
+      - esdiff-network
+
+  elasticsearch7:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.0.0
+    hostname: elasticsearch7
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=mia7
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./data/elasticsearch7:/usr/share/elasticsearch7/data
+      - ./etc/elasticsearch7/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - 39200:9200
+    networks:
+      - esdiff-network
+
+networks:
+  esdiff-network:
+    driver: bridge

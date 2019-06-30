@@ -1,0 +1,6 @@
+---
+# Default Kibana configuration from kibana-docker.
+
+server.name: kibana7
+server.host: "0"
+elasticsearch.hosts: http://elasticsearch7:9200
