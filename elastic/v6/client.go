@@ -134,7 +134,7 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 			for _, hit := range res.Hits.Hits {
 				doc := new(diff.Document)
 				doc.ID = hit.Id
-				err := json.Unmarshal(*hit.Source, &doc.Source)
+				err := json.Unmarshal(*&hit.Source, &doc.Source)
 				if err != nil {
 					errCh <- err
 					return
