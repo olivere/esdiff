@@ -14,7 +14,7 @@ services:
       - xpack.graph.enabled=false
       - xpack.watcher.enabled=false
     volumes:
-      - ./data/elasticsearch5:/usr/share/elasticsearch5/data
+      - ./data/elasticsearch5:/usr/share/elasticsearch/data
       - ./etc/elasticsearch5/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - 19200:9200
@@ -26,10 +26,8 @@ services:
     hostname: elasticsearch6
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - cluster.name=mia6
-      - bootstrap.memory_lock=true
     volumes:
-      - ./data/elasticsearch6:/usr/share/elasticsearch6/data
+      - ./data/elasticsearch6:/usr/share/elasticsearch/data
       - ./etc/elasticsearch6/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - 29200:9200
@@ -37,14 +35,12 @@ services:
       - esdiff-network
 
   elasticsearch7:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.0.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.1
     hostname: elasticsearch7
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - cluster.name=mia7
-      - bootstrap.memory_lock=true
     volumes:
-      - ./data/elasticsearch7:/usr/share/elasticsearch7/data
+      - ./data/elasticsearch7:/usr/share/elasticsearch/data
       - ./etc/elasticsearch7/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
       - 39200:9200
