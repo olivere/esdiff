@@ -3,6 +3,7 @@
 **Warning: This is a work-in-progress. Things might break without warning.**
 
 The `esdiff` tool iterates over two indices in Elasticsearch 5.x or 6.x or 7.x
+and performs a diff between the documents in those indices.	
 
 It does so by scrolling over the indices. To allow for a stable sort
 order, it uses `_id` by default (`_uid` in ES 5.x).
