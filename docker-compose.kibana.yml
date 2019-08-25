@@ -1,0 +1,29 @@
+version: '3.3'
+
+services:
+  kibana5:
+    image: docker.elastic.co/kibana/kibana:5.6.16
+    hostname: kibana5
+    environment:
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=mia5
+    volumes:
+      - ./etc/kibana5/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    ports:
+      - 19201:5601
+
+  kibana6:
+    image: docker.elastic.co/kibana/kibana-oss:6.8.2
+    hostname: kibana6
+    volumes:
+      - ./etc/kibana6/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    ports:
+      - 29201:5601
+
+  kibana7:
+    image: docker.elastic.co/kibana/kibana-oss:7.3.1
+    hostname: kibana7
+    volumes:
+      - ./etc/kibana7/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    ports:
+      - 39201:5601

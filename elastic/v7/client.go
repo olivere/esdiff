@@ -1,4 +1,4 @@
-package v6
+package v7
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	elasticv6 "github.com/olivere/elastic"
+	elastic7 "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 
 	"github.com/olivere/esdiff/diff"
@@ -15,9 +15,9 @@ import (
 	"github.com/olivere/esdiff/elastic/config"
 )
 
-// Client implements an Elasticsearch 6.x client.
+// Client implements an Elasticsearch 7.x client.
 type Client struct {
-	c     *elasticv6.Client
+	c     *elastic7.Client
 	index string
 	typ   string
 	size  int
@@ -25,10 +25,10 @@ type Client struct {
 
 // NewClient creates a new Client.
 func NewClient(cfg *config.Config) (*Client, error) {
-	var options []elasticv6.ClientOptionFunc
+	var options []elastic7.ClientOptionFunc
 	if cfg != nil {
 		if cfg.URL != "" {
-			options = append(options, elasticv6.SetURL(cfg.URL))
+			options = append(options, elastic7.SetURL(cfg.URL))
 		}
 		if cfg.Errorlog != "" {
 			f, err := os.OpenFile(cfg.Errorlog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -36,7 +36,7 @@ func NewClient(cfg *config.Config) (*Client, error) {
 				return nil, errors.Wrap(err, "unable to initialize error log")
 			}
 			l := log.New(f, "", 0)
-			options = append(options, elasticv6.SetErrorLog(l))
+			options = append(options, elastic7.SetErrorLog(l))
 		}
 		if cfg.Tracelog != "" {
 			f, err := os.OpenFile(cfg.Tracelog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -44,7 +44,7 @@ func NewClient(cfg *config.Config) (*Client, error) {
 				return nil, errors.Wrap(err, "unable to initialize trace log")
 			}
 			l := log.New(f, "", 0)
-			options = append(options, elasticv6.SetTraceLog(l))
+			options = append(options, elastic7.SetTraceLog(l))
 		}
 		if cfg.Infolog != "" {
 			f, err := os.OpenFile(cfg.Infolog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -52,14 +52,14 @@ func NewClient(cfg *config.Config) (*Client, error) {
 				return nil, errors.Wrap(err, "unable to initialize info log")
 			}
 			l := log.New(f, "", 0)
-			options = append(options, elasticv6.SetInfoLog(l))
+			options = append(options, elastic7.SetInfoLog(l))
 		}
 		if cfg.Username != "" || cfg.Password != "" {
-			options = append(options, elasticv6.SetBasicAuth(cfg.Username, cfg.Password))
+			options = append(options, elastic7.SetBasicAuth(cfg.Username, cfg.Password))
 		}
-		options = append(options, elasticv6.SetSniff(cfg.Sniff))
+		options = append(options, elastic7.SetSniff(cfg.Sniff))
 	}
-	cli, err := elasticv6.NewClient(options...)
+	cli, err := elastic7.NewClient(options...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +89,9 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 		}()
 
 		// Sorting
-		var sorter elasticv6.Sorter
+		var sorter elastic7.Sorter
 		if req.SortField == "" {
-			sorter = elasticv6.NewFieldSort("_id").Asc()
+			sorter = elastic7.NewFieldSort("_id").Asc()
 		} else {
 			field := req.SortField
 			asc := true
@@ -99,16 +99,18 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 				field = field[1:]
 				asc = false
 			}
-			sorter = elasticv6.NewFieldSort(field).Order(asc)
+			sorter = elastic7.NewFieldSort(field).Order(asc)
 		}
 
 		svc := c.c.Scroll(c.index).Type(c.typ).Size(c.size).SortBy(sorter)
+
 		if req.RawQuery != "" {
-			q := elasticv6.NewRawStringQuery(req.RawQuery)
+			q := elastic7.NewRawStringQuery(req.RawQuery)
 			svc = svc.Query(q)
 		}
+
 		if len(req.SourceFilterInclude)+len(req.SourceFilterExclude) > 0 {
-			fsc := elasticv6.NewFetchSourceContext(true).
+			fsc := elastic7.NewFetchSourceContext(true).
 				Include(req.SourceFilterInclude...).
 				Exclude(req.SourceFilterExclude...)
 			svc = svc.FetchSourceContext(fsc)
@@ -127,19 +129,22 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 				errCh <- errors.New("unexpected nil document")
 				return
 			}
+
 			if res.Hits == nil {
 				errCh <- errors.New("unexpected nil hits")
 				return
 			}
+
 			for _, hit := range res.Hits.Hits {
 				doc := new(diff.Document)
 				doc.ID = hit.Id
-				err := json.Unmarshal(*hit.Source, &doc.Source)
+				err := json.Unmarshal(*&hit.Source, &doc.Source)
 				if err != nil {
 					errCh <- err
 					return
 				}
 				docCh <- doc
+
 			}
 		}
 	}()

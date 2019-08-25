@@ -4,6 +4,6 @@
 server.name: kibana6
 server.host: "0"
 elasticsearch.url: http://elasticsearch6:9200
-# elasticsearch.username: elastic
-# elasticsearch.password: changeme
-# xpack.monitoring.ui.container.elasticsearch.enabled: false
+# elasticsearch6.username: elastic
+# elasticsearch6.password: changeme
+# xpack.monitoring.ui.container.elasticsearch6.enabled: false

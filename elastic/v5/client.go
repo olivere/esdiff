@@ -79,8 +79,8 @@ func (c *Client) SetBatchSize(size int) {
 
 // Iterate iterates over the index.
 func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-chan *diff.Document, <-chan error) {
-	docCh := make(chan *diff.Document)
-	errCh := make(chan error)
+	docCh := make(chan *diff.Document, 1)
+	errCh := make(chan error, 1)
 
 	go func() {
 		defer func() {

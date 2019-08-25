@@ -27,6 +27,7 @@ _testmain.go
 *.coverprofile
 *.log
 .DS_Store
+.idea/
 .vscode/
 
 /data

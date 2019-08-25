@@ -21,6 +21,7 @@ import (
 	"github.com/olivere/esdiff/elastic/config"
 	v5 "github.com/olivere/esdiff/elastic/v5"
 	v6 "github.com/olivere/esdiff/elastic/v6"
+	v7 "github.com/olivere/esdiff/elastic/v7"
 )
 
 func main() {
@@ -95,11 +96,8 @@ func main() {
 
 	g, ctx := errgroup.WithContext(context.Background())
 	srcDocCh, srcErrCh := src.Iterate(ctx, srcIterReq)
-	_ = srcErrCh
 	dstDocCh, dstErrCh := dst.Iterate(ctx, dstIterReq)
-	_ = dstErrCh
 	diffCh, errCh := diff.Differ(ctx, srcDocCh, dstDocCh)
-	_ = errCh
 	g.Go(func() error {
 		for {
 			select {
@@ -159,6 +157,15 @@ func newClient(url string, opts ...elastic.ClientOption) (elastic.Client, error)
 		return c, nil
 	case 6:
 		c, err := v6.NewClient(cfg)
+		if err != nil {
+			return nil, err
+		}
+		for _, opt := range opts {
+			opt(c)
+		}
+		return c, nil
+	case 7:
+		c, err := v7.NewClient(cfg)
 		if err != nil {
 			return nil, err
 		}
