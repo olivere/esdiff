@@ -13,7 +13,7 @@ services:
       - 19201:5601
 
   kibana6:
-    image: docker.elastic.co/kibana/kibana-oss:6.8.2
+    image: docker.elastic.co/kibana/kibana-oss:6.8.22
     hostname: kibana6
     volumes:
       - ./etc/kibana6/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
@@ -21,7 +21,7 @@ services:
       - 29201:5601
 
   kibana7:
-    image: docker.elastic.co/kibana/kibana-oss:7.3.1
+    image: docker.elastic.co/kibana/kibana-oss:7.16.2
     hostname: kibana7
     volumes:
       - ./etc/kibana7/kibana.yml:/usr/share/kibana/config/kibana.yml:ro

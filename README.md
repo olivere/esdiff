@@ -11,7 +11,7 @@ order, it uses `_id` by default (`_uid` in ES 5.x).
 You need Go 1.11 or later to compile. Install with:
 
 ```sh
-go install github.com/olivere/esdiff
+go install github.com/olivere/esdiff@latest
 ```
 
 ## Example usage
