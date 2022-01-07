@@ -45,8 +45,9 @@ jobs:
 
     - name: Wait for Elasticsearch
       run: |
-        while ! nc -z localhost 9200; do sleep 1; done
-        while ! nc -z localhost 9210; do sleep 1; done
+        while ! nc -z localhost 19200; do sleep 1; done
+        while ! nc -z localhost 29200; do sleep 1; done
+        while ! nc -z localhost 39200; do sleep 1; done
 
     - name: Run the tests
       run: |
