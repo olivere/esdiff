@@ -138,8 +138,8 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 					errCh <- err
 					return
 				}
+				//assert,Try to get ReplaceField val
 				if req.ReplaceField != "" {
-					//assert,Try to get ReplaceField val
 					if val, ok := doc.Source[req.ReplaceField]; ok {
 						switch val.(type) {
 						case string:
@@ -161,6 +161,9 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 						default:
 							doc.ID = val.(string)
 						}
+					} else {
+						errCh <- errors.New("unexpected replace-with field")
+						return
 					}
 				} else {
 					doc.ID = hit.Id

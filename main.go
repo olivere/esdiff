@@ -26,20 +26,19 @@ import (
 
 func main() {
 	var (
-		outputFormat     = flag.String("o", "", "Output format, e.g. json")
-		size             = flag.Int("size", 100, "Batch size")
-		rawSrcQuery      = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
-		rawDstQuery      = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
-		srcSort          = flag.String("ssort", "", `Field to sort the source, e.g. "id" or "-id" (prepend with - for descending)`)
-		dstSort          = flag.String("dsort", "", `Field to sort the destination, e.g. "id" or "-id" (prepend with - for descending)`)
-		srcFilterInclude = flag.String("include", "", `Raw source filter for including certain fields from the source, e.g. "obj.*"`)
-		srcFilterExclude = flag.String("exclude", "", `Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"`)
-		unchanged        = flag.Bool("u", false, `Print unchanged docs`)
-		updated          = flag.Bool("c", true, `Print changed docs`)
-		changed          = flag.Bool("a", true, `Print added docs`)
-		deleted          = flag.Bool("d", true, `Print deleted docs`)
-		//replace
-		replaceIdAnother = flag.String("replaceIdAnother", "", `replace id field to other field you want`)
+		outputFormat            = flag.String("o", "", "Output format, e.g. json")
+		size                    = flag.Int("size", 100, "Batch size")
+		rawSrcQuery             = flag.String("sf", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
+		rawDstQuery             = flag.String("df", "", `Raw query for filtering the destination, e.g. {"term":{"name.keyword":"Oliver"}}`)
+		srcSort                 = flag.String("ssort", "", `Field to sort the source, e.g. "id" or "-id" (prepend with - for descending)`)
+		dstSort                 = flag.String("dsort", "", `Field to sort the destination, e.g. "id" or "-id" (prepend with - for descending)`)
+		srcFilterInclude        = flag.String("include", "", `Raw source filter for including certain fields from the source, e.g. "obj.*"`)
+		srcFilterExclude        = flag.String("exclude", "", `Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"`)
+		unchanged               = flag.Bool("u", false, `Print unchanged docs`)
+		updated                 = flag.Bool("c", true, `Print changed docs`)
+		changed                 = flag.Bool("a", true, `Print added docs`)
+		deleted                 = flag.Bool("d", true, `Print deleted docs`)
+		replaceWithAnotherField = flag.String("replace-with", "", `replace id field to other field you want`)
 	)
 
 	log.SetFlags(0)
@@ -71,7 +70,7 @@ func main() {
 	srcIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawSrcQuery,
 		SortField:           *srcSort,
-		ReplaceField:        *replaceIdAnother,
+		ReplaceField:        *replaceWithAnotherField,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}
@@ -82,7 +81,7 @@ func main() {
 	dstIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawDstQuery,
 		SortField:           *dstSort,
-		ReplaceField:        *replaceIdAnother,
+		ReplaceField:        *replaceWithAnotherField,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}

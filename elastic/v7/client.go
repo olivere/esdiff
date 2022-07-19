@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	elastic7 "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -137,11 +138,40 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 
 			for _, hit := range res.Hits.Hits {
 				doc := new(diff.Document)
-				doc.ID = hit.Id
 				err := json.Unmarshal(*&hit.Source, &doc.Source)
 				if err != nil {
 					errCh <- err
 					return
+				}
+				//assert,Try to get ReplaceField val
+				if req.ReplaceField != "" {
+					if val, ok := doc.Source[req.ReplaceField]; ok {
+						switch val.(type) {
+						case string:
+							doc.ID = val.(string)
+						case int:
+							doc.ID = strconv.Itoa(val.(int))
+						case int32:
+							valStr := strconv.FormatInt(int64(val.(int32)), 10)
+							doc.ID = valStr
+						case int64:
+							valStr := strconv.FormatInt(val.(int64), 10)
+							doc.ID = valStr
+						case float32:
+							valInt := int(val.(float32))
+							doc.ID = strconv.Itoa(valInt)
+						case float64:
+							valInt := int(val.(float64))
+							doc.ID = strconv.Itoa(valInt)
+						default:
+							doc.ID = val.(string)
+						}
+					} else {
+						errCh <- errors.New("unexpected replace-with field")
+						return
+					}
+				} else {
+					doc.ID = hit.Id
 				}
 				docCh <- doc
 
