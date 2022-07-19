@@ -138,9 +138,8 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 					errCh <- err
 					return
 				}
-				//如果id是带前缀的，比如：index1_1 和index2_2，虽然索引字段一支，但是id名字不一样，需要可以自定义id的值
 				if req.ReplaceField != "" {
-					//尝试从source中获取字段
+					//assert,Try to get ReplaceField val
 					if val, ok := doc.Source[req.ReplaceField]; ok {
 						switch val.(type) {
 						case string:
