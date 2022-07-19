@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	elasticv6 "github.com/olivere/elastic"
 	"github.com/pkg/errors"
@@ -113,7 +114,6 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 				Exclude(req.SourceFilterExclude...)
 			svc = svc.FetchSourceContext(fsc)
 		}
-
 		for {
 			res, err := svc.Do(ctx)
 			if err == io.EOF {
@@ -133,11 +133,38 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 			}
 			for _, hit := range res.Hits.Hits {
 				doc := new(diff.Document)
-				doc.ID = hit.Id
 				err := json.Unmarshal(*hit.Source, &doc.Source)
 				if err != nil {
 					errCh <- err
 					return
+				}
+				//如果id是带前缀的，比如：index1_1 和index2_2，虽然索引字段一支，但是id名字不一样，需要可以自定义id的值
+				if req.ReplaceField != "" {
+					//尝试从source中获取字段
+					if val, ok := doc.Source[req.ReplaceField]; ok {
+						switch val.(type) {
+						case string:
+							doc.ID = val.(string)
+						case int:
+							doc.ID = strconv.Itoa(val.(int))
+						case int32:
+							valStr := strconv.FormatInt(int64(val.(int32)), 10)
+							doc.ID = valStr
+						case int64:
+							valStr := strconv.FormatInt(val.(int64), 10)
+							doc.ID = valStr
+						case float32:
+							valInt := int(val.(float32))
+							doc.ID = strconv.Itoa(valInt)
+						case float64:
+							valInt := int(val.(float64))
+							doc.ID = strconv.Itoa(valInt)
+						default:
+							doc.ID = val.(string)
+						}
+					}
+				} else {
+					doc.ID = hit.Id
 				}
 				docCh <- doc
 			}

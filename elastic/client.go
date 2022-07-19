@@ -15,6 +15,7 @@ type Client interface {
 type IterateRequest struct {
 	RawQuery            string
 	SortField           string
+	ReplaceField        string
 	SourceFilterInclude []string
 	SourceFilterExclude []string
 }

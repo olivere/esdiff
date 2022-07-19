@@ -38,6 +38,8 @@ func main() {
 		updated          = flag.Bool("c", true, `Print changed docs`)
 		changed          = flag.Bool("a", true, `Print added docs`)
 		deleted          = flag.Bool("d", true, `Print deleted docs`)
+		//replace
+		replaceIdAnother = flag.String("replaceIdAnother", "", `replace id field to other field you want`)
 	)
 
 	log.SetFlags(0)
@@ -69,10 +71,10 @@ func main() {
 	srcIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawSrcQuery,
 		SortField:           *srcSort,
+		ReplaceField:        *replaceIdAnother,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}
-
 	dst, err := newClient(flag.Arg(1), options...)
 	if err != nil {
 		log.Fatal(err)
@@ -80,10 +82,10 @@ func main() {
 	dstIterReq := &elastic.IterateRequest{
 		RawQuery:            *rawDstQuery,
 		SortField:           *dstSort,
+		ReplaceField:        *replaceIdAnother,
 		SourceFilterInclude: srcFilterIncludes,
 		SourceFilterExclude: srcFilterExcludes,
 	}
-
 	var p printer.Printer
 	{
 		switch *outputFormat {

@@ -186,6 +186,8 @@ General flags:
   -ssort string
         Field to sort the source, e.g. "id" or "-id" (prepend with - for descending)
   -u    Print unchanged docs
+  -replaceIdAnother
+        Replace the id in the document with the unique field you need
 ```
 
 ## License
