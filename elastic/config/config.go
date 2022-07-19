@@ -41,13 +41,7 @@ func Parse(elasticURL string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing elastic parameter %q: %v", elasticURL, err)
 	}
-	indexAndType := uri.Path
-	if strings.HasPrefix(indexAndType, "/") {
-		indexAndType = indexAndType[1:]
-	}
-	if strings.HasSuffix(indexAndType, "/") {
-		indexAndType = indexAndType[:len(indexAndType)-1]
-	}
+	indexAndType := strings.Trim(uri.Path, "/")
 	if indexAndType == "" {
 		return nil, fmt.Errorf("missing index and/or type in elastic parameter %q", elasticURL)
 	}

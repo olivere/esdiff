@@ -138,26 +138,22 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 					errCh <- err
 					return
 				}
-				//assert,Try to get ReplaceField val
+				// Replace ID field with some other field from the document?
 				if req.ReplaceField != "" {
 					if val, ok := doc.Source[req.ReplaceField]; ok {
-						switch val.(type) {
+						switch v := val.(type) {
 						case string:
-							doc.ID = val.(string)
+							doc.ID = v
 						case int:
-							doc.ID = strconv.Itoa(val.(int))
+							doc.ID = strconv.Itoa(v)
 						case int32:
-							valStr := strconv.FormatInt(int64(val.(int32)), 10)
-							doc.ID = valStr
+							doc.ID = strconv.FormatInt(int64(v), 10)
 						case int64:
-							valStr := strconv.FormatInt(val.(int64), 10)
-							doc.ID = valStr
+							doc.ID = strconv.FormatInt(v, 10)
 						case float32:
-							valInt := int(val.(float32))
-							doc.ID = strconv.Itoa(valInt)
+							doc.ID = strconv.Itoa(int(v))
 						case float64:
-							valInt := int(val.(float64))
-							doc.ID = strconv.Itoa(valInt)
+							doc.ID = strconv.Itoa(int(v))
 						default:
 							doc.ID = val.(string)
 						}
