@@ -32,6 +32,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Run Docker containers
+      timeout-minutes: 1
       run: docker-compose up -d
 
     - name: Check Docker containers
@@ -44,11 +45,13 @@ jobs:
         go mod tidy
 
     - name: Wait for Elasticsearch
+      timeout-minutes: 1
       run: |
         while ! nc -z localhost 19200; do sleep 1; done
         while ! nc -z localhost 29200; do sleep 1; done
         while ! nc -z localhost 39200; do sleep 1; done
 
     - name: Run the tests
+      timeout-minutes: 5
       run: |
         go test -race -v ./...
